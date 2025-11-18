@@ -4,16 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IFPB Conecta</title>
+    <title>ConectaIF</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link rel="shortcut icon" href="Gemini_Generated_Image_qqepg7qqepg7qqep.png" type="image/x-icon">
 </head>
 
 <body>
     <header>
         <h1>ConectaIF</h1>
+        <link rel="manifest" href="./manifest.json">
+        <meta name="theme-color" content="#2E7D32">
+        <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+
     </header>
+    <button id="bt-instalar" style="display: none;">
+        📲 INSTALAR APLICATIVO
+    </button>
 
     <main>
 
@@ -71,6 +79,45 @@
 
 
     </main>
+    <script>
+        // 1. Registrar o Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log('Service Worker registrado!'));
+        }
+
+        // 2. Lógica do Botão de Instalar
+        let deferredPrompt;
+        const installBtn = document.getElementById('bt-instalar');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Previne que o Chrome mostre a barrinha padrão feia na hora errada
+            e.preventDefault();
+            // Salva o evento para usar depois
+            deferredPrompt = e;
+            // Mostra o nosso botão bonito
+            installBtn.style.display = 'block';
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Mostra a janelinha de instalação do sistema
+                deferredPrompt.prompt();
+                // Espera o usuário aceitar ou recusar
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`Usuário escolheu: ${outcome}`);
+                // Esconde o botão e limpa a variável
+                deferredPrompt = null;
+                installBtn.style.display = 'none';
+            }
+        });
+
+        // 3. Se já estiver instalado, esconde o botão
+        window.addEventListener('appinstalled', () => {
+            installBtn.style.display = 'none';
+            console.log('App instalado com sucesso!');
+        });
+    </script>
 
 </body>
 
